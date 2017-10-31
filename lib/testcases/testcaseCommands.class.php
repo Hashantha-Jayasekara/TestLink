@@ -8,12 +8,10 @@
  * @filesource  testcaseCommands.class.php
  * @package     TestLink
  * @author      Francisco Mancardi - francisco.mancardi@gmail.com
- * @copyright   2007-2015, TestLink community 
+ * @copyright   2007-2017, TestLink community 
  * @link        http://testlink.sourceforge.net/
  *
  *
- * @internal revisions
- * @since 1.9.15
  **/
 
 class testcaseCommands
@@ -499,26 +497,22 @@ class testcaseCommands
       $guiObj->action = '';
       $guiObj->sqlResult = $this->tcaseMgr->db->error_msg();
     }
-    else
+    
+    $guiObj->main_descr = lang_get('title_del_tc') . ":" . $external_id . TITLE_SEP . htmlspecialchars($tcinfo[0]['name']);
+    
+    if($argsObj->tcversion_id == testcase::ALL_VERSIONS)
     {
+	  $guiObj->refreshTree = 1;
+	  logAuditEvent(TLS("audit_testcase_deleted",$external_id),"DELETE",$argsObj->tcase_id,"testcases");
       $guiObj->user_feedback = sprintf(lang_get('tc_deleted'), ":" . $external_id . TITLE_SEP . $tcinfo[0]['name']);
     }
-      
-    $guiObj->main_descr = lang_get('title_del_tc') . ":" . $external_id . TITLE_SEP . htmlspecialchars($tcinfo[0]['name']);
-  
-    // refresh must be forced to avoid a wrong tree situation.
-    // if tree is not refreshed and user click on deleted test case he/she
-    // will get a SQL error
-    // $refresh_tree = $cfg->spec->automatic_tree_refresh ? "yes" : "no";
-    $guiObj->refreshTree = 1;
- 
-      // When deleting JUST one version, there is no need to refresh tree
-    if($argsObj->tcversion_id != testcase::ALL_VERSIONS)
-    {
+	else{
       $guiObj->main_descr .= " " . lang_get('version') . " " . $tcinfo[0]['version'];
+	  // When deleting JUST one version, there is no need to refresh tree
       $guiObj->refreshTree = 0;
+	  logAuditEvent(TLS("audit_testcase_version_deleted",$tcinfo[0]['version'],$external_id),"DELETE",$argsObj->tcase_id,"testcases");
       $guiObj->user_feedback = sprintf(lang_get('tc_version_deleted'),$tcinfo[0]['name'],$tcinfo[0]['version']);
-    }
+	}
 
     $guiObj->testcase_name = $tcinfo[0]['name'];
     $guiObj->testcase_id = $argsObj->tcase_id;
@@ -1010,8 +1004,16 @@ class testcaseCommands
 
     $this->initTestCaseBasicInfo($argsObj,$guiObj);
 
-    $this->tcaseMgr->setExecutionType($argsObj->tcversion_id,$argsObj->exec_type);
+    $opx = array('updSteps' => $argsObj->applyExecTypeChangeToAllSteps);
+    $this->tcaseMgr->setExecutionType($argsObj->tcversion_id,$argsObj->exec_type,$opx);
+
+
+
     $this->tcaseMgr->update_last_modified($argsObj->tcversion_id,$argsObj->user_id);
+
+    // 
+
+    
 
     // set up for rendering
     $guiObj->template = "archiveData.php?version_id={$guiObj->tcversion_id}&" . 

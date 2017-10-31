@@ -18,11 +18,8 @@
  *
  * @filesource  config.inc.php
  * @package     TestLink
- * @copyright   2005-2015, TestLink community
+ * @copyright   2005-2017, TestLink community
  * @link        http://www.testlink.org
- *
- * @internal revisions
- * @since 1.9.13
  *
  *
  **/
@@ -74,6 +71,32 @@ if( !defined('DB_TABLE_PREFIX') )
 /** The root dir for the testlink installation with trailing slash */
 define('TL_ABS_PATH', dirname(__FILE__) . DIRECTORY_SEPARATOR);
 
+/** GUI themes (base for CSS and images)- modify if you create own one */
+$tlCfg->theme_dir = 'gui/themes/default/';
+
+/** Dir for compiled templates */
+$tlCfg->temp_dir = TL_ABS_PATH . 'gui' . DIRECTORY_SEPARATOR . 
+                   'templates_c' . DIRECTORY_SEPARATOR;
+
+/** default filenames of CSS files of current GUI theme */
+define('TL_CSS_MAIN', 'testlink.css');
+define('TL_CSS_PRINT', 'tl_print.css');
+define('TL_CSS_DOCUMENTS', 'tl_documents.css');
+
+define('TL_THEME_BASE_DIR', $tlCfg->theme_dir);
+define('TL_THEME_IMG_DIR', $tlCfg->theme_dir . 'images/');
+define('TL_THEME_CSS_DIR', $tlCfg->theme_dir . 'css/');
+define('TL_TESTLINK_CSS', TL_THEME_CSS_DIR . TL_CSS_MAIN);
+define('TL_PRINT_CSS', TL_THEME_CSS_DIR . TL_CSS_PRINT);
+
+// name of your custom.css, place it in same folder that standard TL css
+// null or '' => do not use
+$tlCfg->custom_css = null;
+
+// if you do not want to use this, redefine $tlCfg->custom_css as '' or null
+define('TL_TESTLINK_CUSTOM_CSS', TL_THEME_CSS_DIR . $tlCfg->custom_css);
+
+
 /** Include constants and magic numbers (users should not change it)*/
 require_once(TL_ABS_PATH . 'cfg' . DIRECTORY_SEPARATOR . 'const.inc.php');
 
@@ -82,7 +105,10 @@ require_once(TL_ABS_PATH . 'cfg' . DIRECTORY_SEPARATOR . 'const.inc.php');
 /** @var string used to have (when needed) a possibility to identify different TL instances
     @since 1.9.4 used on mail subject when mail logger is used
  */
-$tlCfg->instance_id = 'Main TestLink Instance';
+$tlCfg->instance_name = 'Main TestLink Instance';
+
+// do not use blanks or special characters, use a short string
+$tlCfg->instance_id = 'TLM';
 
 
 /**
@@ -202,7 +228,7 @@ $tlCfg->smarty_debug = false;
  *  for security reasons (see http://itsecuritysolutions.org/2012-08-13-TestLink-1.9.3-multiple-vulnerabilities/)
  *  put it out of reach via web or configure access denied.
  */
-$tlCfg->log_path = 'C:\xampp\htdocs\testlink\testlink\logs'; /* Windows example */
+$tlCfg->log_path = 'C:/xampp/htdocs/testlink/testlink/logs/'; /* unix example */
 
 
 /**
@@ -267,7 +293,6 @@ $g_smtp_host        = 'smtp.gmail.com';  # SMTP server MUST BE configured
 $g_tl_admin_email     = 'uguest.intervest@gmail.com'; # for problem/error notification
 $g_from_email         = 'uguest.intervest@gmail.com';  # email sender
 $g_return_path_email  = 'uguest.intervest@gmail.com';
-
 /**
  * Email notification priority (low by default)
  * Urgent = 1, Not Urgent = 5, Disable = 0
@@ -318,10 +343,7 @@ $g_SMTPAutoTLS = false;
  *  'LDAP' => use password from LDAP Server
  */
 $tlCfg->authentication['domain'] = array('DB' => array('description' => 'DB', 'allowPasswordManagement' => true) ,
-										 'LDAP' => array('description' => 'LDAP', 'allowPasswordManagement' => false) );
-
-
-// $tlCfg->authentication['domain'] = array('DB','LDAP')
+                     'LDAP' => array('description' => 'LDAP', 'allowPasswordManagement' => false) );
 
 /* Default Authentication method */
 $tlCfg->authentication['method'] = 'DB';
@@ -333,7 +355,7 @@ $tlCfg->authentication['method'] = 'DB';
 // null => only check password IS NOT EMPTY
 // 
 // $tlCfg->passwordChecks = array('minlen' => 8,'maxlen' => 20,'number' => true,'letter' => true,
-//	                              'capital' => true, 'symbol' => true);
+//                                'capital' => true, 'symbol' => true);
 $tlCfg->passwordChecks = null;
 
 // Applies ONLY to the HTML input.
@@ -341,14 +363,32 @@ $tlCfg->passwordChecks = null;
 $tlCfg->loginPagePasswordMaxLenght = 40;
 
 /**
+ * Standard logout url, used also when SSO is used and hint to skip SSO is used.
+ * '' => use standard TestLink page
+ */
+$tlCfg->logoutUrl = '';
+
+// users that will not allow expiration date management on GUI
+$tlCfg->noExpDateUsers = array('admin');
+
+/**
  * Single Sign On authentication
- * This will be used with $tlCfg->authentication['method'] <<= INCOMPLETE COMMENT
  *
- * This works with apache webserver
+ * SSO_method: CLIENT_CERTIFICATE, tested with Apache Webserver
+ * SSP_method: WEBSERVER_VAR, tested with Apache and Shibboleth Service Provider.
  */
 $tlCfg->authentication['SSO_enabled'] = false; 
-$tlCfg->authentication['SSO_method'] = 'CLIENT_CERTIFICATE';
-$tlCfg->authentication['SSO_uid_field'] = 'SSL_CLIENT_S_DN_Email';
+$tlCfg->authentication['SSO_logout_destination'] = 'YOUR LOGOUT DESTINATION';
+
+// Tested with Apache Webserver
+//$tlCfg->authentication['SSO_method'] = 'CLIENT_CERTIFICATE';
+//$tlCfg->authentication['SSO_uid_field'] = 'SSL_CLIENT_S_DN_Email';
+
+// Tested with Apache and Shibboleth Service Provider 
+//$tlCfg->authentication['SSO_method'] = 'WEBSERVER_VAR';
+//$tlCfg->authentication['SSO_uid_field'] = 'REMOTE_USER';
+//$tlCfg->authentication['SSO_user_target_dbfield'] = 'email';
+
 
 
 
@@ -378,6 +418,11 @@ $tlCfg->authentication['ldap'][1]['ldap_tls'] = false; // true -> use tls
 $tlCfg->authentication['ldap'][1]['ldap_organization'] = ''; // e.g. '(organizationname=*Traffic)'
 $tlCfg->authentication['ldap'][1]['ldap_uid_field'] = 'uid'; // Use 'sAMAccountName' for Active Directory
 
+// Configure following fields in custom_config.inc.php according your configuration
+$tlCfg->authentication['ldap'][1]['ldap_email_field'] = 'mail';
+$tlCfg->authentication['ldap'][1]['ldap_firstname_field'] = 'givenname';
+$tlCfg->authentication['ldap'][1]['ldap_surname_field'] = 'sn';
+
 
 // Follows Mantisbt idea.
 // True if user does not exist on DB, but can be get from LDAP, 
@@ -387,15 +432,6 @@ $tlCfg->authentication['ldap'][1]['ldap_uid_field'] = 'uid'; // Use 'sAMAccountN
 // name
 // surname
 $tlCfg->authentication['ldap_automatic_user_creation'] = false;
-
-// Configure following fields in custom_config.inc.php according your configuration
-// IMPORTANT NOTICE
-// Same for all LDAP Servers if you are using MULTIPLE LDAP Servers configuration 
-$tlCfg->authentication['ldap_email_field'] = 'mail';
-$tlCfg->authentication['ldap_firstname_field'] = 'givenname';
-$tlCfg->authentication['ldap_surname_field'] = 'sn';
-
-
 
 
 /** Enable/disable Users to create accounts on login page */
@@ -449,19 +485,15 @@ $tlCfg->api->enabled = TRUE;
 $tlCfg->api->id_format = "[ID: %s ]";
 
 
-// --------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------
 /* [GUI LAYOUT] */
-
-/** GUI themes (base for CSS and images)- modify if you create own one */
-$tlCfg->theme_dir = 'gui/themes/default/';
-
-/** Dir for compiled templates */
-$tlCfg->temp_dir = TL_ABS_PATH . 'gui' . DIRECTORY_SEPARATOR . 'templates_c' . DIRECTORY_SEPARATOR;
 
 /** Company logo (used by navigation bar and login page page) */
 $tlCfg->logo_login = 'tl-logo-transparent-25.png';
 $tlCfg->logo_navbar = 'tl-logo-transparent-12.5.png';
 
+/** Height of the navbar always displayed  */
+$tlCfg->navbar_height = 70;
 
 /** Login page could show an informational text */
 $tlCfg->login_info = ''; // Empty by default
@@ -763,7 +795,7 @@ $tlCfg->document_generator->tc_version_enabled = FALSE;
 // ENABLED -> enable XML-RPC calls to external test automation server
 //            new buttons will be displayed on execution pages
 // DISABLED -> disable
-$tlCfg->exec_cfg->enable_test_automation = ENABLED;
+$tlCfg->exec_cfg->enable_test_automation = DISABLED;
 
 
 // ASCending   -> last execution at bottom
@@ -810,7 +842,7 @@ $tlCfg->exec_cfg->enable_tree_counters_colouring = ENABLED;
 //            see $tlCfg->exec_cfg->show_testsuite_contents_deep
 // 
 // DISABLED -> nothing happens, to execute a test case you need to click on test case
-$tlCfg->exec_cfg->show_testsuite_contents = ENABLED;
+$tlCfg->exec_cfg->show_testsuite_contents = DISABLED;
 
 // @since 1.9.13
 // works in 'team' with $tlCfg->exec_cfg->show_testsuite_contents 
@@ -1135,7 +1167,7 @@ $g_repositoryType = TL_REPOSITORY_TYPE_FS;
  * Put it out of reach via web or configure access denied.
  *
  **/
-$g_repositoryPath = 'C:\xampp\htdocs\testlink\testlink\upload_area';  /* windows example */
+$g_repositoryPath = 'C:/xampp/htdocs/testlink/testlink/upload_area/';  /* unix example */
 
 /**
  * compression used within the repository
@@ -1639,9 +1671,6 @@ if the name exist.
 */
 $g_prefix_name_for_copy = strftime("%Y%m%d-%H:%M:%S", time());
 
-// name of your custom.css, place it in same folder that standard TL css
-// null or '' => do not use
-$tlCfg->custom_css = null;
 
 
 /** 
@@ -1660,6 +1689,11 @@ $g_tpl = array('inc_exec_controls' => 'inc_exec_img_controls.tpl');
 // $g_tpl = array('tcView'  => 'custom_tcView.tpl',
 //                 'tcSearchView' => 'myOwnTCSearchView.tpl',
 //                 'tcEdit' => 'tcEdit_ultraCool.tpl');
+
+/** Add o replace images */
+$tlCfg->images = array();
+
+
 
 // ----------------------------------------------------------------------------
 /* [PROXY] */
@@ -1684,21 +1718,27 @@ define('TL_PLUGIN_PATH', dirname(__FILE__) . DIRECTORY_SEPARATOR . 'plugins' . D
 /** Functions for check request status */
 require_once('configCheck.php');
 
-clearstatcache();
-if ( file_exists( TL_ABS_PATH . 'custom_config.inc.php' ) )
-{
-  require_once( TL_ABS_PATH . 'custom_config.inc.php' );
-}
 
 if( !defined('TL_JQUERY') )
 {
-    define('TL_JQUERY','jquery-2.2.4.min.js' );
+  define('TL_JQUERY','jquery-2.2.4.min.js' );
+}
+
+if( !defined('TL_DATATABLES_DIR') )
+{
+  define('TL_DATATABLES_DIR','DataTables-1.10.4' );
 }
 
 /** root of testlink directory location seen through the web server */
 /*  20070106 - franciscom - this statement it's not 100% right
     better use $_SESSION['basehref'] in the scripts. */
 define('TL_BASE_HREF', get_home_url(array('force_https' => $tlCfg->force_https)));
+
+clearstatcache();
+if ( file_exists( TL_ABS_PATH . 'custom_config.inc.php' ) )
+{
+  require_once( TL_ABS_PATH . 'custom_config.inc.php' );
+}
 
 
 if( !isset($g_attachments->access_icon) )
@@ -1713,8 +1753,9 @@ $tlCfg->reportsCfg->exec_status = $tlCfg->results['status_label_for_exec_ui'];
 
 
 /** Support for localization */
-//  @TODO schlundus, move the code out of config and do it only once and not always in any include!
-//  @TODO schlundus, a better parsing function should be include
+//  @TODO move the code out of config and do it only once and 
+//  not always in any include!
+//  @TODO a better parsing function should be include
 $serverLanguage = false;
 if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE']))
 {
@@ -1748,7 +1789,7 @@ $tlCfg->results['code_status'] = array_flip($tlCfg->results['status_code']);
 // Enable CSRF global protection
 $tlCfg->csrf_filter_enabled = TRUE;
 
-// --------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------
 /** Converted and derived variables (Users should not modify this section) */
 define('REFRESH_SPEC_TREE',$tlCfg->spec_cfg->automatic_tree_refresh ? 1 : 0);
 define('TL_SORT_TABLE_ENGINE',$g_sort_table_engine);
@@ -1756,18 +1797,9 @@ define("TL_REPOSITORY_MAXFILESIZE", 1024*1024*$tlCfg->repository_max_filesize);
 
 define('TL_XMLEXPORT_HEADER', "<?xml version=\"1.0\" encoding=\"" . $tlCfg->charset . "\"?>\n");
 
-define('TL_THEME_BASE_DIR', $tlCfg->theme_dir);
-define('TL_THEME_IMG_DIR', $tlCfg->theme_dir . 'images/');
-define('TL_THEME_CSS_DIR', $tlCfg->theme_dir . 'css/');
-define('TL_TESTLINK_CSS', TL_THEME_CSS_DIR . TL_CSS_MAIN);
-define('TL_PRINT_CSS', TL_THEME_CSS_DIR . TL_CSS_PRINT);
-define('TL_TREEMENU_CSS', TL_THEME_CSS_DIR . TL_CSS_TREEMENU);
-
-// if you do not want to use this, redefine $tlCfg->custom_css as '' or null
-define('TL_TESTLINK_CUSTOM_CSS', TL_THEME_CSS_DIR . $tlCfg->custom_css);
 
 
-// --------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------
 // when a role is deleted, a new role must be assigned to all users
 // having role to be deleted
 // A right choice seems to be using $g_default_roleid.

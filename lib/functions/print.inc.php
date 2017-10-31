@@ -8,12 +8,12 @@
  * @filesource  print.inc.php
  *
  * @package   TestLink
- * @copyright 2007-2016, TestLink community 
+ * @copyright 2007-2017, TestLink community 
  * @uses      printDocument.php
  *
  *
  * @internal revisions
- * @since 1.9.15
+ * @since 1.9.17
  *
  */ 
 
@@ -612,9 +612,7 @@ function renderHTMLHeader($title,$base_href,$doc_type,$jsSet=null)
     break;
   }
 
-  $output = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"" .
-            "\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n";
-
+  $output = "<!DOCTYPE HTML>\n";
 
   $output .= "<html>\n<head>\n";
   $output .= '<meta http-equiv="Content-Type" content="text/html; charset=' . config_get('charset') . '"/>';
@@ -1057,7 +1055,10 @@ function renderTestCaseForPrinting(&$db,&$node,&$options,$env,$context,$indentLe
            " FROM {$tables['executions']} E " .
            " JOIN {$tables['builds']} B ON B.id = E.build_id " .
            " WHERE 1 = 1 ";
-
+	
+	//Bugfix to show only active builds in Test Report view
+	$sql .= "AND B.active = 1";
+	
     if(isset($context['exec_id']))
     {
       $sql .= " AND E.id=" . intval($context['exec_id']);
@@ -2264,6 +2265,24 @@ function renderExecutionForPrinting(&$dbHandler, $baseHref, $id, $userObj = null
             $env->base_href . 'lnl.php?type=exec&id=' . intval($id) . '<br/>';
     $exec_info = null;    
   }  
+
+  return $out;
+}
+
+/**
+ *
+ */
+function renderBuildItem($info)
+{
+  $cfg = getWebEditorCfg('build');
+  $buildType = $cfg['type'];
+  $lbl = init_labels(array('build' => null, 'notes' => null));
+  $out = '';
+
+  $title = $lbl['build'] . ': ' .  htmlspecialchars($info->build_name);
+  $out .= renderSimpleChapter($title,
+          ($buildType == 'none' ? nl2br($info->build_notes) : $info->build_notes),
+           'page-break-before: avoid;');
 
   return $out;
 }

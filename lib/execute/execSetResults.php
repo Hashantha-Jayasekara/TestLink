@@ -22,8 +22,6 @@
  * Note about step info
  * is present in gui->map_last_exec
  *
- * @internal revisions
- * @since 1.9.16
  *
 **/
 require_once('../../config.inc.php');
@@ -53,6 +51,8 @@ $submitResult = null;
 list($args,$its) = init_args($db,$cfg);
 
 $smarty = new TLSmarty();
+$smarty->assign('tsuite_info',null);
+
 $tree_mgr = new tree($db);
 $tplan_mgr = new testplan($db);
 $tcase_mgr = new testcase($db);
@@ -194,6 +194,10 @@ if(!is_null($linked_tcversions))
                    'status'   => $args->statusSingle[$args->version_id],
                    'directLink' => $args->direct_link);
       event_signal('EVENT_EXECUTE_TEST', $ctx);
+	  $tc_info = $tcase_mgr->getExternalID($tcase_id);
+	  $tp_info = $tplan_mgr->get_by_id($args->tplan_id);
+	  $build_info = $tplan_mgr->get_build_by_id($args->tplan_id,$args->build_id);
+	  logAuditEvent(TLS("audit_exec_saved",$tc_info[0],$build_info['name'],$tp_info['name']),"CREATE",$execSet[$tcversion_id],"execution");
     }
 
     // Need to re-read to update test case status
@@ -304,7 +308,13 @@ if(!is_null($linked_tcversions))
   {  
     if ($args->doDelete)
     {
-      delete_execution($db,$args->exec_to_delete);
+      $dummy = delete_execution($db,$args->exec_to_delete);
+	  if ($dummy){
+	    $tc_info = $tcase_mgr->getExternalID($tcase_id);
+	    $tp_info = $tplan_mgr->get_by_id($args->tplan_id);
+	    $build_info = $tplan_mgr->get_build_by_id($args->tplan_id,$args->build_id);
+		logAuditEvent(TLS("audit_exec_deleted",$tc_info[0],$build_info['name'],$tp_info['name']),"DELETE",$args->exec_to_delete,"execution");
+	  }
     }
 
     // Important Notice: $tcase_id and $tcversions_id, can be ARRAYS when user enable bulk execution
@@ -401,9 +411,18 @@ else
   // Bulk is possible when test suite is selected (and is allowed in config)
   if( $gui->can_use_bulk_op = ($args->level == 'testsuite') )
   {
-    $xx = current($gui->execution_time_cfields);
+    $xx = null;
+    if( property_exists($gui, 'execution_time_cfields') )
+    {
+      $xx = current((array)$gui->execution_time_cfields);
+    }  
+
     $gui->execution_time_cfields = null;
-    $gui->execution_time_cfields[0] = $xx;
+    
+    if( !is_null($xx) )
+    {
+      $gui->execution_time_cfields[0] = $xx;
+    }  
   }  
   initWebEditors($gui,$cfg,$_SESSION['basehref']);
 
@@ -412,7 +431,7 @@ else
   $smarty->assign('test_automation_enabled',0);
   $smarty->assign('gui',$gui);
   $smarty->assign('cfg',$cfg);
-  $smarty->assign('users',tlUser::getByIDs($db,$userSet,'id'));
+  $smarty->assign('users',tlUser::getByIDs($db,$userSet));
 
   $smarty->display($templateCfg->template_dir . $templateCfg->default_template);
 } 
@@ -763,7 +782,6 @@ function smarty_assign_tsuite_info(&$smarty,&$request_hash, &$db,&$tree_mgr,$tca
     return;
   }  
 
-
   $fpath = $tree_mgr->get_full_path_verbose($tcase_id, array('output_format' => 'id_name'));
   $tsuite_info = get_ts_name_details($db,$tcase_id);
 
@@ -782,7 +800,7 @@ function smarty_assign_tsuite_info(&$smarty,&$request_hash, &$db,&$tree_mgr,$tca
   }
   $smarty->assign('tsuite_info',$tsuite_info);
   
-  // --------------------------------------------------------------------------------
+  // ------------------------------------------------------------------------------
   if(!is_null($tsuite_info))
   {
     $cookieKey = 'TL_execSetResults_tsdetails_view_status';
@@ -1241,7 +1259,7 @@ function initializeRights(&$dbHandler,&$userObj,$tproject_id,$tplan_id)
     $exec_cfg = config_get('exec_cfg');
     $grants = new stdClass();
     
-    $grants->execute = $userObj->hasRight($dbHandler,"testplan_execute",$tproject_id,$tplan_id);
+    $grants->execute = $userObj->hasRight($dbHandler,"testplan_execute",$tproject_id,$tplan_id,true);
     $grants->execute = $grants->execute=="yes" ? 1 : 0;
     
     // IMPORTANT NOTICE - TICKET 5128
@@ -1260,7 +1278,7 @@ function initializeRights(&$dbHandler,&$userObj,$tproject_id,$tplan_id)
     // These checks can not be done here
     //
     // TICKET 5310: Execution Config - convert options into rights
-    $grants->delete_execution = $userObj->hasRight($dbHandler,"exec_delete",$tproject_id,$tplan_id);
+    $grants->delete_execution = $userObj->hasRight($dbHandler,"exec_delete",$tproject_id,$tplan_id,true);
   
     
     // Important:
@@ -1290,6 +1308,24 @@ function initializeGui(&$dbHandler,&$argsObj,&$cfgObj,&$tplanMgr,&$tcaseMgr,&$is
   $platformMgr = new tlPlatform($dbHandler,$argsObj->tproject_id);
     
   $gui = new stdClass();
+  $gui->tcversionSet = null;
+  $gui->plugins = null;
+
+  $k2i = array('import','attachments','exec','edit_exec');
+  $gui->features = array();
+  foreach($k2i as $olh)
+  {
+    $gui->features[$olh] = false;
+  }  
+
+  if( $argsObj->user->hasRight($dbHandler,'testplan_execute',
+                      $argsObj->tproject_id,$argsObj->tplan_id,true) )
+  {
+    foreach($k2i as $olh)
+    {
+      $gui->features[$olh] = true;
+    }  
+  }  
 
   // TBD $gui->delAttachmentURL =
   
@@ -1506,10 +1542,11 @@ function processTestCase($tcase,&$guiObj,&$argsObj,&$cfgObj,$tcv,&$treeMgr,&$tca
   
   // IMPORTANT due  to platform feature
   // every element on linked_tcversions will be an array.
-  $cf_filters=array('show_on_execution' => 1); 
-  $locationFilters=$tcaseMgr->buildCFLocationMap();
-  $guiObj->design_time_cfields='';
-  $guiObj->testplan_design_time_cfields='';
+  $cf_filters = array('show_on_execution' => 1); 
+  $locationFilters = $tcaseMgr->buildCFLocationMap();
+  
+  $guiObj->design_time_cfields = array();
+  $guiObj->testplan_design_time_cfields = array();
   
   $tcase_id = isset($tcase['tcase_id']) ? $tcase['tcase_id'] : $argsObj->id;
 
@@ -1525,11 +1562,10 @@ function processTestCase($tcase,&$guiObj,&$argsObj,&$cfgObj,$tcv,&$treeMgr,&$tca
   $items_to_exec[$tcase_id] = $target['tcversion_id'];    
   $link_id = $target['feature_id'];
   $tcversion_id = isset($tcase['tcversion_id']) ? $tcase['tcversion_id'] : $items_to_exec[$tcase_id];
-  
-  $finalFilters = array();
-  $guiObj->design_time_cfields = array();
-  
+    
   $guiObj->tcAttachments[$tcase_id] = getAttachmentInfos($docRepository,$tcase_id,'nodes_hierarchy',1);
+
+
   foreach($locationFilters as $locationKey => $filterValue)
   {
     $finalFilters=$cf_filters+$filterValue;
@@ -1706,9 +1742,7 @@ function processTestSuite(&$dbHandler,&$guiObj,&$argsObj,$testSet,&$treeMgr,&$tc
           // Can be added because is present in the branch the user wants to view
           // ID of branch starting node is in $argsObj->id
           $guiObj->tcAttachments[$testcase_id] = getAttachmentInfos($docRepository,$testcase_id,'nodes_hierarchy',true,1);
-          
-		  $finalFilters = array();
-          $guiObj->design_time_cfields = array();
+                  
           foreach($locationFilters as $locationKey => $filterValue)
           {
             $finalFilters = $cf_filters+$filterValue;

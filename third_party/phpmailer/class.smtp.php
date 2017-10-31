@@ -42,7 +42,7 @@ class SMTP
      * The SMTP port to use if one is not specified.
      * @var integer
      */
-    const DEFAULT_SMTP_PORT = 465;
+    const DEFAULT_SMTP_PORT = 25;
 
     /**
      * The maximum line length allowed by RFC 2822 section 2.1.1
@@ -255,7 +255,7 @@ class SMTP
      * @access public
      * @return boolean
      */
-    public function connect($host, $port = 0, $timeout = 30, $options = array())
+    public function connect($host, $port = null, $timeout = 30, $options = array())
     {
         static $streamok;
         //This is enabled by default since 5.0.0 but some providers disable it
