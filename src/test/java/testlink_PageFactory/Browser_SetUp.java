@@ -17,7 +17,7 @@ public class Browser_SetUp {
     public static String PLAN_NAME = "Phase04";
     public static String BUILD_NAME = "Reg&Login_Build";
     public WebDriver driver;
-    public String site = "https://www.flip.net/";
+    public String site = "";
 
     public void setUp() throws Exception {
 
