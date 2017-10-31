@@ -1,0 +1,26 @@
+<component name="libraryTable">
+  <library name="XmlRpcClientConfig">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/apache/commons/commons-lang3/3.4/commons-lang3-3.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/commons-logging-1.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/proxy-2.4.2-SNAPSHOT.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/testlink-api-client-2.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/ws-commons-util-1.0.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/xmlrpc-client-3.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/xmlrpc-common-3.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/zap-api-2.4-v6.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/harlib-1.1.1.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$PROJECT_DIR$/libs/harlib-1.1.1.jar!/docs/api" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/apache/commons/commons-lang3/3.4/commons-lang3-3.4-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/xmlrpc-client-3.1-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/xmlrpc-common-3.1-sources.jar!/" />
+    </SOURCES>
+    <excluded>
+      <root url="file://$MAVEN_REPOSITORY$/org/apache" />
+    </excluded>
+  </library>
+</component>
