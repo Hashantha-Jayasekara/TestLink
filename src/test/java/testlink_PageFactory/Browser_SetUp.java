@@ -11,13 +11,13 @@ import org.openqa.selenium.support.PageFactory;
 
 public class Browser_SetUp {
 
-    public static String DEV_KEY = "c1b17bbdd838186541b0c7b2efd4c0ee";
+    public static String DEV_KEY = "5fa5a75a92ed4740e099dc290ba96ea5";
     public static String SERVER_URL = "http://localhost/testlink/testlink/lib/api/xmlrpc/v1/xmlrpc.php";
     public static String PROJECT_NAME = "flipMyroom";
     public static String PLAN_NAME = "Phase04";
-    public static String BUILD_NAME = "Reg&Login_Build";
+    public static String BUILD_NAME = "Phase04_Regression";
     public WebDriver driver;
-    public String site = "";
+    public String site = "https://www.flip.net/";
 
     public void setUp() throws Exception {
 

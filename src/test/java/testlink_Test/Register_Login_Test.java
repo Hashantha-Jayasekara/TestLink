@@ -69,7 +69,7 @@ public class Register_Login_Test {
 
     }
         finally {
-            objRegisterLogin.updateTestLinkResult("001-1", notes, result);
+            objRegisterLogin.updateTestLinkResult("FMR-1", notes, result);
         }
 
 
@@ -97,7 +97,7 @@ public class Register_Login_Test {
         }
 
         finally {
-            objRegisterLogin.updateTestLinkResult("001-2", notes, result);
+            objRegisterLogin.updateTestLinkResult("FMR-2", notes, result);
         }
 
 
@@ -122,7 +122,7 @@ public class Register_Login_Test {
         }
 
         finally {
-            objRegisterLogin.updateTestLinkResult("001-3", notes, result);
+            objRegisterLogin.updateTestLinkResult("FMR-3", notes, result);
         }
 
     }
