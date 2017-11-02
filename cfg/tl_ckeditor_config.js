@@ -20,6 +20,7 @@ CKEDITOR.editorConfig = function( config )
 	
 	// do not check "Replace actual contents" checkbox as default
 	config.templates_replaceContent = false;
+	config.disableNativeSpellChecker = false;
 	
 	// default Toolbar
 	config.toolbar_Testlink = 
@@ -72,9 +73,9 @@ CKEDITOR.editorConfig = function( config )
 	   more informations on http://ckfinder.com/
 	   download ckfinder and put into third party folder
 	*/
-	//config.filebrowserBrowseUrl = '/third_party/ckfinder/ckfinder.html';
-	//config.filebrowserImageBrowseUrl = '/third_party/ckfinder/ckfinder.html?Type=Images';
-	//config.filebrowserFlashBrowseUrl = '/third_party/ckfinder/ckfinder.html?Type=Flash';
+	config.filebrowserBrowseUrl = '/third_party/ckfinder/ckfinder.html';
+	config.filebrowserImageBrowseUrl = '/third_party/ckfinder/ckfinder.html?Type=Images';
+	config.filebrowserFlashBrowseUrl = '/third_party/ckfinder/ckfinder.html?Type=Flash';
 	// uncomment these lines only if you want to allow quick upload
 	//config.filebrowserUploadUrl = '/third_party/ckfinder/core/connector/php/connector.php?command=QuickUpload&type=Files';
 	//config.filebrowserImageUploadUrl = '/third_party/ckfinder/core/connector/php/connector.php?command=QuickUpload&type=Images';
