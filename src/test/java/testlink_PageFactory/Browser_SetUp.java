@@ -11,7 +11,7 @@ import org.openqa.selenium.support.PageFactory;
 
 public class Browser_SetUp {
 
-    public static String DEV_KEY = "5fa5a75a92ed4740e099dc290ba96ea5";
+    public static String DEV_KEY = "ae6d708dd85e99015f89a8612c6a010a";
     public static String SERVER_URL = "http://localhost/testlink/testlink/lib/api/xmlrpc/v1/xmlrpc.php";
     public static String PROJECT_NAME = "flipMyroom";
     public static String PLAN_NAME = "Phase04";
