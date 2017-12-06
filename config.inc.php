@@ -287,12 +287,13 @@ $tlCfg->loggerFilter = null; // default defined on logger.class.php ;
  * Configure using custom_config.inc.php
  * @uses lib/functions/email_api.php
  */
-$g_smtp_host        = 'smtp.gmail.com';  # SMTP server MUST BE configured
+$g_smtp_host        = '[smtp_host_not_configured]';  # SMTP server MUST BE configured
 
 # Configure using custom_config.inc.php
-$g_tl_admin_email     = 'uguest.intervest@gmail.com'; # for problem/error notification
-$g_from_email         = 'uguest.intervest@gmail.com';  # email sender
-$g_return_path_email  = 'uguest.intervest@gmail.com';
+$g_tl_admin_email     = '[testlink_sysadmin_email_not_configured]'; # for problem/error notification
+$g_from_email         = '[from_email_not_configured]';  # email sender
+$g_return_path_email  = '[return_path_email_not_configured]';
+
 /**
  * Email notification priority (low by default)
  * Urgent = 1, Not Urgent = 5, Disable = 0
@@ -309,22 +310,22 @@ $g_mail_priority = 5;
 $g_phpMailer_method = PHPMAILER_METHOD_SMTP;
 
 /** Configure only if SMTP server requires authentication */
-$g_smtp_username    = 'uguest.intervest@gmail.com';  # user
-$g_smtp_password    = 'uguestP@ssw0rd!';  # password
+$g_smtp_username    = '';  # user
+$g_smtp_password    = '';  # password
 
 /**
  * This control the connection mode to SMTP server. 
  * Can be '', 'ssl','tls'
  * @global string $g_smtp_connection_mode
  */
-$g_smtp_connection_mode = 'ssl';
+$g_smtp_connection_mode = '';
 
 /**
  * The smtp port to use.  The typical SMTP ports are 25 and 587.  The port to use
  * will depend on the SMTP server configuration and hence others may be used.
  * @global int $g_smtp_port
  */
-$g_smtp_port = 465;                        
+$g_smtp_port = 25;                        
 
 
 /**
@@ -517,6 +518,10 @@ $tlCfg->gui->planView = new stdClass();
 $tlCfg->gui->planView->pagination = new stdClass();
 $tlCfg->gui->planView->pagination->enabled = true;
 $tlCfg->gui->planView->pagination->length = '[20, 40, 60, -1], [20, 40, 60, "All"]';
+$tlCfg->gui->planView->itemQtyForTopButton = 10;
+
+$tlCfg->gui->buildView = new stdClass();
+$tlCfg->gui->buildView->itemQtyForTopButton = 10;
 
 
 /** 
