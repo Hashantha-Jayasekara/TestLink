@@ -22,7 +22,7 @@ define('TL_SMARTY_VERSION',3);  // @since 1.9.8
 
 /** TestLink Release version (MUST BE changed before the release day) */
 define('TL_VERSION_NUMBER', '1.9.17'); 
-define('TL_VERSION', TL_VERSION_NUMBER . ' Hashantha Jayasekara');
+define('TL_VERSION', TL_VERSION_NUMBER . ' PHP Team');
 define('TL_FACE_DIR', 'prague'); 
 
 /** Latest Database version that is used to give users feedback 
@@ -43,6 +43,7 @@ ini_set('include_path',
     ini_get('include_path') . PATH_SEPARATOR . '.' . PATH_SEPARATOR . 
     TL_ABS_PATH . 'lib' . DIRECTORY_SEPARATOR . 'functions' . DIRECTORY_SEPARATOR  . PATH_SEPARATOR .
     TL_ABS_PATH . 'lib' . DIRECTORY_SEPARATOR . 'issuetrackerintegration' . DIRECTORY_SEPARATOR . PATH_SEPARATOR .
+    TL_ABS_PATH . 'lib' . DIRECTORY_SEPARATOR . 'codetrackerintegration' . DIRECTORY_SEPARATOR . PATH_SEPARATOR .
     TL_ABS_PATH . 'lib' . DIRECTORY_SEPARATOR . 'reqmgrsystemintegration' . DIRECTORY_SEPARATOR);
 
 ini_set('include_path',ini_get('include_path') . PATH_SEPARATOR . 
