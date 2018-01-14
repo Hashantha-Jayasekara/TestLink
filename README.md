@@ -1,6 +1,6 @@
 # TestLink 1.9.17 Hashantha Jayasekara - Read me
 
-#####Step-1: Install Test Link
+##Step-1: Install Test Link
 
 #####Step-2: Enable Automation in TestLink
 Automation need to be enabled for integrating with Selenium.
